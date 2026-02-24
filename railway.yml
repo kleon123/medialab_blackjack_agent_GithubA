@@ -1,0 +1,11 @@
+$schema: https://railway.app/railway.schema.json
+name: medialab-blackjack-agents
+services:
+  backend:
+    build: .
+    port: 3000
+    variables:
+      NODE_ENV: production
+      PORT: 3000
+    volumes:
+      - ./db:/usr/src/app/db
