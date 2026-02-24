@@ -1,66 +1,77 @@
-// db/statistics.js
-
-const sqlite3 = require('sqlite3').verbose();
-
-// Connect to the database
-let db = new sqlite3.Database('./game_stats.db', (err) => {
-    if (err) {
-        console.error('Error opening database ' + err.message);
+class StatisticsDB {
+    constructor(databasePath) {
+        this.databasePath = databasePath;
+        this.init();
     }
-});
 
-// Create tables for tracking game statistics and agent performance
-db.serialize(() => {
-    // Create a table for player statistics
-    db.run(`CREATE TABLE IF NOT EXISTS player_stats (
-        player_id INTEGER PRIMARY KEY,
-        games_played INTEGER DEFAULT 0,
-        games_won INTEGER DEFAULT 0,
-        total_points INTEGER DEFAULT 0
-    );`);
-
-    // Create a table for agent performance
-    db.run(`CREATE TABLE IF NOT EXISTS agent_performance (
-        agent_id INTEGER PRIMARY KEY,
-        games_played INTEGER DEFAULT 0,
-        games_won INTEGER DEFAULT 0,
-        total_points INTEGER DEFAULT 0
-    );`);
-});
-
-// Function to log player statistics
-function logPlayerStats(playerId, won, points) {
-    db.run(`INSERT INTO player_stats (player_id, games_played, games_won, total_points) VALUES (?, ?, ?, ?) ON CONFLICT(player_id) DO UPDATE SET games_played = games_played + 1, games_won = games_won + ?, total_points = total_points + ?`,
-        [playerId, 1, won ? 1 : 0, points],
-        function(err) {
+    init() {
+        const sqlite3 = require('sqlite3').verbose();
+        this.db = new sqlite3.Database(this.databasePath, (err) => {
             if (err) {
-                console.error('Error logging player stats:', err);
+                console.error('Could not connect to database:', err);
+            } else {
+                console.log('Connected to the SQLite database.');
+                this.createTables();
             }
-        }
-    );
+        });
+    }
+
+    createTables() {
+        const agentTable = `CREATE TABLE IF NOT EXISTS agents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            stats TEXT
+        );`;
+
+        const gameResultsTable = `CREATE TABLE IF NOT EXISTS game_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_id INTEGER,
+            result TEXT,
+            FOREIGN KEY (agent_id) REFERENCES agents(id)
+        );`;
+
+        this.db.exec(agentTable, (err) => {
+            if (err) {
+                console.error('Could not create agents table:', err);
+            }
+        });
+
+        this.db.exec(gameResultsTable, (err) => {
+            if (err) {
+                console.error('Could not create game results table:', err);
+            }
+        });
+    }
+
+    registerAgent(agentName) {
+        const query = `INSERT INTO agents (name) VALUES (?);`;
+        this.db.run(query, [agentName], function (err) {
+            if (err) {
+                return console.error('Could not register agent:', err);
+            }
+            console.log(`Registered agent with ID: ${this.lastID}`);
+        });
+    }
+
+    recordGameResult(agentId, result) {
+        const query = `INSERT INTO game_results (agent_id, result) VALUES (?, ?);`;
+        this.db.run(query, [agentId, result], function (err) {
+            if (err) {
+                return console.error('Could not record game result:', err);
+            }
+            console.log(`Recorded game result for agent ID: ${agentId}`);
+        });
+    }
+
+    updateAgentStatistics(agentId, stats) {
+        const query = `UPDATE agents SET stats = ? WHERE id = ?;`;
+        this.db.run(query, [stats, agentId], function (err) {
+            if (err) {
+                return console.error('Could not update agent statistics:', err);
+            }
+            console.log(`Updated statistics for agent ID: ${agentId}`);
+        });
+    }
 }
 
-// Function to log agent performance
-function logAgentPerformance(agentId, won, points) {
-    db.run(`INSERT INTO agent_performance (agent_id, games_played, games_won, total_points) VALUES (?, ?, ?, ?) ON CONFLICT(agent_id) DO UPDATE SET games_played = games_played + 1, games_won = games_won + ?, total_points = total_points + ?`,
-        [agentId, 1, won ? 1 : 0, points],
-        function(err) {
-            if (err) {
-                console.error('Error logging agent performance:', err);
-            }
-        }
-    );
-}
-
-// Close the database connection when done
-process.on('SIGINT', () => {
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing the database', err.message);
-        }
-        console.log('Database connection closed.');
-        process.exit(0);
-    });
-});
-
-module.exports = { logPlayerStats, logAgentPerformance };
+module.exports = StatisticsDB;
