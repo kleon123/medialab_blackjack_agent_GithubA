@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Leaderboard and Action Log</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Live Leaderboard</h1>
+    <table id="leaderboard">
+        <tr>
+            <th>Player</th>
+            <th>Score</th>
+        </tr>
+        <!-- Leaderboard entries will be dynamically added here -->
+    </table>
+
+    <h2>Action Log</h2>
+    <div id="action-log">
+        <!-- Action log entries will be dynamically added here -->
+    </div>
+
+    <script>
+        // Example function to update leaderboard and action log
+        function updateDashboard() {
+            // Simulate fetching data from server and updating the leaderboard and action log
+            const leaderboard = [
+                { player: 'Alice', score: 150 },
+                { player: 'Bob', score: 200 },
+                { player: 'Charlie', score: 100 }
+            ];
+            const actionLog = [
+                'Alice played a card.',
+                'Bob scored 20 points.',
+                'Charlie made a move.'
+            ];
+
+            const leaderboardTable = document.getElementById('leaderboard');
+            leaderboardTable.innerHTML = '<tr><th>Player</th><th>Score</th></tr>';
+            leaderboard.forEach(entry => {
+                const row = leaderboardTable.insertRow();
+                row.insertCell(0).textContent = entry.player;
+                row.insertCell(1).textContent = entry.score;
+            });
+
+            const actionLogDiv = document.getElementById('action-log');
+            actionLogDiv.innerHTML = '';
+            actionLog.forEach(action => {
+                const logEntry = document.createElement('div');
+                logEntry.textContent = action;
+                actionLogDiv.appendChild(logEntry);
+            });
+        }
+
+        // Update the dashboard every 5 seconds
+        setInterval(updateDashboard, 5000);
+        updateDashboard(); // Initial call to populate
+    </script>
+</body>
+</html>
