@@ -1,33 +1,42 @@
-'use strict';
-
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+const path = require('path');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Load multi-agent API routes
+const apiRoutes = require('./routes/api');
+app.use('/api', apiRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
+
+// Main game page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Watch page
+app.get('/watch', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'watch.html'));
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+});
 
 const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-    res.send('Welcome to the Blackjack game!');
+app.listen(PORT, () => {
+    console.log(`🎲 Blackjack Agents Playground on port ${PORT}`);
+    console.log(`📍 http://localhost:${PORT}`);
+    console.log(`👀 Watch: http://localhost:${PORT}/watch`);
+    console.log(`📊 Leaderboard: http://localhost:${PORT}/api/leaderboard`);
 });
 
-io.on('connection', (socket) => {
-    console.log('A user connected');
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-
-    // Example of handling a game event
-    socket.on('startGame', () => {
-        // Game logic to start the game goes here
-        io.emit('gameStarted', { message: 'Game has started!' });
-    });
-});
-
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+module.exports = app;
