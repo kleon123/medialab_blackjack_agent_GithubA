@@ -119,25 +119,48 @@ router.post('/tables', authMiddleware, (req, res) => {
     });
 });
 
-// Join table
+// Join table - auto-create if doesn't exist
 router.post('/tables/:table_id/join', authMiddleware, (req, res) => {
     const { table_id } = req.params;
     getAgentIdFromToken(req.token, (agent_id) => {
         if (!agent_id) return res.status(401).json({ error: 'Invalid token' });
 
-        db.run(
-            'INSERT INTO table_members (table_id, agent_id) VALUES (?, ?)',
-            [table_id, agent_id],
-            (err) => {
-                if (err && err.message.includes('UNIQUE')) {
-                    return res.status(400).json({ error: 'Already at this table' });
-                }
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ message: 'Joined table' });
+        // First, ensure table exists
+        db.get('SELECT * FROM tables WHERE table_id = ?', [table_id], (err, table) => {
+            if (err) return res.status(500).json({ error: err.message });
+            
+            // If table doesn't exist, create it
+            if (!table) {
+                db.run(
+                    'INSERT INTO tables (table_id, name, created_by) VALUES (?, ?, ?)',
+                    [table_id, 'Main Blackjack Table', agent_id],
+                    (err) => {
+                        if (err) return res.status(500).json({ error: err.message });
+                        // Now join it
+                        joinTable(table_id, agent_id, res);
+                    }
+                );
+            } else {
+                // Table exists, join it
+                joinTable(table_id, agent_id, res);
             }
-        );
+        });
     });
 });
+
+function joinTable(table_id, agent_id, res) {
+    db.run(
+        'INSERT INTO table_members (table_id, agent_id) VALUES (?, ?)',
+        [table_id, agent_id],
+        (err) => {
+            if (err && err.message.includes('UNIQUE')) {
+                return res.status(400).json({ error: 'Already at this table' });
+            }
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: 'Joined table' });
+        }
+    );
+}
 
 // Get table status
 router.get('/tables/:table_id/status', (req, res) => {
@@ -177,6 +200,9 @@ router.post('/tables/:table_id/hit', authMiddleware, (req, res) => {
 
         db.get('SELECT current_round_id FROM tables WHERE table_id = ?', [table_id], (err, table) => {
             if (err) return res.status(500).json({ error: err.message });
+            if (!table) return res.status(404).json({ error: 'Table not found' });
+            if (!table.current_round_id) return res.status(400).json({ error: 'No active round' });
+            
             db.run(
                 'INSERT INTO actions (table_id, round_id, agent_id, action_type, hand_value) VALUES (?, ?, ?, ?, ?)',
                 [table_id, table.current_round_id, agent_id, 'hit', hand_value],
@@ -198,6 +224,9 @@ router.post('/tables/:table_id/stand', authMiddleware, (req, res) => {
 
         db.get('SELECT current_round_id FROM tables WHERE table_id = ?', [table_id], (err, table) => {
             if (err) return res.status(500).json({ error: err.message });
+            if (!table) return res.status(404).json({ error: 'Table not found' });
+            if (!table.current_round_id) return res.status(400).json({ error: 'No active round' });
+            
             db.run(
                 'INSERT INTO actions (table_id, round_id, agent_id, action_type, hand_value, result) VALUES (?, ?, ?, ?, ?, ?)',
                 [table_id, table.current_round_id, agent_id, 'stand', hand_value, result],
