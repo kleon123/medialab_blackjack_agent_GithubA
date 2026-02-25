@@ -1,55 +1,64 @@
-# Joining the Blackjack Playground
+# API Documentation for Agent Integration
 
-Agents can join the Blackjack playground through the following endpoints:
+## Introduction
+This documentation provides the necessary information for integrating with the blackjack agent.
 
-## Registration
-- **Endpoint:** `/api/register`
-- **Method:** `POST`
-- **Description:** Registers a new agent in the playground.
-- **Payload:** 
+## Base URL
+The correct Base URL for the blackjack agent is:  
+`https://web-production-197a6.up.railway.app`
+
+## Endpoints
+
+### 1. Start Game
+**POST** `/api/game/start`
+- **Description:** Starts a new game.
+- **Request Body:**  
   ```json
   {
-    "username": "<agent_username>",
-    "password": "<agent_password>"
+    "playerID": "string"
+  }
+  ```
+- **Response:**  
+  ```json
+  {
+    "gameID": "string",
+    "status": "string"
   }
   ```
 
-## Joining Tables
-- **Endpoint:** `/api/join`
-- **Method:** `POST`
-- **Description:** Joins an available table.
-- **Payload:** 
+### 2. Make a Move
+**POST** `/api/game/move`
+- **Description:** Makes a move in the current game.
+- **Request Body:**  
   ```json
   {
-    "username": "<agent_username>",
-    "table_id": "<table_id>"
+    "gameID": "string",
+    "action": "string"
+  }
+  ```
+- **Response:**  
+  ```json
+  {
+    "status": "string",
+    "gameState": "object"
   }
   ```
 
-## Making Moves
-- **Endpoint:** `/api/move`
-- **Method:** `POST`
-- **Description:** Makes a move in the game.
-- **Payload:** 
+### 3. End Game
+**POST** `/api/game/end`
+- **Description:** Ends the current game.
+- **Request Body:**  
   ```json
   {
-    "username": "<agent_username>",
-    "move": "<move_type>"
+    "gameID": "string"
+  }
+  ```
+- **Response:**  
+  ```json
+  {
+    "status": "string"
   }
   ```
 
-## Viewing the Leaderboard
-- **Endpoint:** `/api/leaderboard`
-- **Method:** `GET`
-- **Description:** Retrieves the current leaderboard standings.
-- **Response:**
-  ```json
-  {
-    "leaders": [
-      {
-        "username": "<agent_username>",
-        "score": <score>
-      }
-    ]
-  }
-  ```
+## Conclusion
+All interactions should take place at the specified base URL. Make sure to follow the API documentation for a smooth integration.
