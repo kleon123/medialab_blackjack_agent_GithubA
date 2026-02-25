@@ -1,43 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack Agent</title>
     <style>
         .action-log {
-            max-height: 300px; /* Reduced max-height */
+            max-height: 300px;
             overflow-y: auto;
         }
         .action-item {
-            margin: 5px; /* Reduced margin */
-            padding: 5px; /* Reduced padding */
-        }
-        .badge {
-            font-size: 12px; /* Reduced font size for badges */
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            font-size: 0.9em;
         }
         .round-counter {
-            background-color: #ec4899; /* Pink background */
+            background: #ec4899;
             color: white;
-            padding: 5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75em;
+            margin-right: 6px;
         }
     </style>
 </head>
 <body>
-    <div class="action-log" id="actionLog">
-        <!-- Action log will be displayed here -->
+
+    <div class="action-log">
+        <!-- Action log content will go here -->
     </div>
-    <div class="action-item">
-        <span class="badge">Player Action</span>
-        <span class="badge round-counter" id="roundCounter">Round: 0</span>
-    </div>
+
     <script>
         let roundCounter = 0;
-        function logAction(action) {
-            const logDiv = document.getElementById('actionLog');
-            logDiv.innerHTML += `<div class='action-item'> <span class='badge'>${action}</span> <span class='badge round-counter'>Round: ${roundCounter}</span> </div>`;
-            roundCounter++;
+        function updateActionLog(action) {
+            const log = document.querySelector('.action-log');
+            const item = document.createElement('div');
+            item.classList.add('action-item');
+            roundCounter += 1; // Increment round counter
+            item.innerHTML = `<span class='round-counter'>Round ${roundCounter}</span> ${action}`;
+            log.appendChild(item);
         }
     </script>
+
 </body>
 </html>
