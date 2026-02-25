@@ -1,44 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Blackjack</title>
     <style>
-        .action-log {
-            max-height: 300px;
+        body {
+            font-size: 12px; /* Smaller font size */
+            padding: 10px; /* Reduced padding */
+            margin: 5px; /* Reduced margin */
+        }
+        #action-log {
+            max-height: 300px; /* Smaller action log height */
             overflow-y: auto;
         }
-        .action-item {
-            padding: 8px 12px;
-            margin-bottom: 4px;
-            font-size: 0.9em;
-        }
-        .round-counter {
-            background: #ec4899;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
+        .counter-badge {
+            background-color: pink;
+            border-radius: 50%;
+            padding: 5px 10px;
             font-weight: bold;
-            font-size: 0.75em;
-            margin-right: 6px;
+            color: black;
+            display: inline-block;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
-
-    <div class="action-log">
-        <!-- Action log content will go here -->
-    </div>
-
+    <h1>Blackjack Game</h1>
+    <div id="action-log"></div>
+    <div class="counter-badge">Rounds: <span id="round-count">0</span></div>
     <script>
-        let roundCounter = 0;
-        function updateActionLog(action) {
-            const log = document.querySelector('.action-log');
-            const item = document.createElement('div');
-            item.classList.add('action-item');
-            roundCounter += 1; // Increment round counter
-            item.innerHTML = `<span class='round-counter'>Round ${roundCounter}</span> ${action}`;
-            log.appendChild(item);
+        // Your JavaScript code for the game goes here
+        let roundCount = 0;
+        function updateRoundCount() {
+            document.getElementById('round-count').innerText = roundCount;
+        }
+        // Example of incrementing round count
+        function nextRound() {
+            roundCount++;
+            updateRoundCount();
         }
     </script>
-
 </body>
 </html>
