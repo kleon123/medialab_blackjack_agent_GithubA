@@ -67,7 +67,7 @@
         /* Leaderboard */
         .leaderboard-header {
             display: grid;
-            grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1fr 1fr;
             gap: 10px;
             padding: 12px;
             background: rgba(74, 222, 128, 0.1);
@@ -78,7 +78,7 @@
         }
         .leaderboard-row {
             display: grid;
-            grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1fr 1fr;
             gap: 10px;
             padding: 12px;
             border-bottom: 1px solid #333;
@@ -102,6 +102,7 @@
         .stat-win { color: #4ade80; font-weight: bold; }
         .stat-loss { color: #f87171; font-weight: bold; }
         .stat-bust { color: #fb923c; font-weight: bold; }
+        .stat-balance { color: #fbbf24; font-weight: bold; }
         
         /* Charts */
         .charts-grid {
@@ -128,7 +129,7 @@
         /* Action Log */
         .action-log {
             list-style: none;
-            max-height: 600px;
+            max-height: 300px;
             overflow-y: auto;
         }
         .action-log::-webkit-scrollbar {
@@ -142,13 +143,14 @@
             border-radius: 10px;
         }
         .action-item {
-            padding: 12px;
+            padding: 8px 12px;
             border-left: 4px solid #4ade80;
             border-bottom: 1px solid #333;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             border-radius: 5px;
             background: rgba(74, 222, 128, 0.05);
             transition: all 0.3s ease;
+            font-size: 0.9em;
         }
         .action-item:hover {
             background: rgba(74, 222, 128, 0.1);
@@ -158,63 +160,83 @@
             display: inline-block;
             background: #4ade80;
             color: #1a1a1a;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.85em;
-            margin-right: 8px;
+            font-size: 0.75em;
+            margin-right: 6px;
         }
         .action-type {
             display: inline-block;
             background: #60a5fa;
             color: #fff;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.85em;
-            margin-right: 8px;
+            font-size: 0.75em;
+            margin-right: 6px;
         }
         .hand-value {
             display: inline-block;
             background: #8b5cf6;
             color: #fff;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.85em;
-            margin-right: 8px;
+            font-size: 0.75em;
+            margin-right: 6px;
+        }
+        .bet-badge {
+            display: inline-block;
+            background: #fbbf24;
+            color: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75em;
+            margin-right: 6px;
+        }
+        .round-counter {
+            display: inline-block;
+            background: #ec4899;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75em;
+            margin-right: 6px;
         }
         .result-win {
             display: inline-block;
             background: #4ade80;
             color: #1a1a1a;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
         .result-loss {
             display: inline-block;
             background: #f87171;
             color: #fff;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
         .result-bust {
             display: inline-block;
             background: #f97316;
             color: #fff;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
         .time {
             display: block;
             color: #888;
-            font-size: 0.75em;
-            margin-top: 4px;
+            font-size: 0.7em;
+            margin-top: 2px;
         }
         
         /* Card Display */
@@ -284,16 +306,19 @@
             .charts-grid {
                 grid-template-columns: 1fr;
             }
+            .leaderboard-header, .leaderboard-row {
+                grid-template-columns: 0.5fr 1fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎲 Blackjack Agents Playground</h1>
-        <p class="subtitle">Real-time Multi-Agent Gaming Arena</p>
+        <p class="subtitle">Real-time Multi-Agent Gaming Arena with Betting</p>
         
         <div class="status">
-            ✓ Live Updates • Refreshing every 2 seconds
+            ✓ Live Updates • Refreshing every 2 seconds • 💰 Betting Enabled
         </div>
 
         <div class="grid">
@@ -307,6 +332,7 @@
                     <div>Losses</div>
                     <div>Busts</div>
                     <div>W/L %</div>
+                    <div>💰 Balance</div>
                 </div>
                 <div id="leaderboard-list"></div>
             </div>
@@ -330,8 +356,8 @@
                 <canvas id="winsChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>📈 Win Rate Distribution</h3>
-                <canvas id="winRateChart"></canvas>
+                <h3>💰 Balance Leaders</h3>
+                <canvas id="balanceChart"></canvas>
             </div>
         </div>
         
@@ -339,7 +365,8 @@
     <script>
         const BASE_URL = window.location.origin;
         let winsChart = null;
-        let winRateChart = null;
+        let balanceChart = null;
+        let roundCounter = {};
 
         function createCardHTML(handValue) {
             const suits = ['♠', '♥', '♦', '♣'];
@@ -381,6 +408,7 @@
                                 <div class="stat-loss">${agent.losses}</div>
                                 <div class="stat-bust">${agent.busts}</div>
                                 <div style="color: #60a5fa;">${ratio}%</div>
+                                <div class="stat-balance">💰 ${agent.balance}</div>
                             </div>
                         `;
                     }).join('');
@@ -399,18 +427,34 @@
                 
                 const logEl = document.getElementById('actionLog');
                 if (actions && actions.length > 0) {
-                    logEl.innerHTML = actions.map(action => {
+                    logEl.innerHTML = actions.map((action, idx) => {
                         const time = new Date(action.timestamp).toLocaleTimeString();
                         let resultBadge = '';
                         if (action.result) {
                             resultBadge = `<span class="result-${action.result}">${action.result.toUpperCase()}</span>`;
                         }
+                        
+                        let betBadge = '';
+                        if (action.bet_amount) {
+                            betBadge = `<span class="bet-badge">💰 ${action.bet_amount}</span>`;
+                        }
+                        
+                        // Track round counter per agent
+                        if (!roundCounter[action.agent_id]) {
+                            roundCounter[action.agent_id] = 0;
+                        }
+                        if (action.action_type === 'stand') {
+                            roundCounter[action.agent_id]++;
+                        }
+                        
                         return `
                             <li class="action-item">
                                 <div>
                                     <span class="agent-badge">${action.name}</span>
                                     <span class="action-type">${action.action_type.toUpperCase()}</span>
                                     <span class="hand-value">💪 ${action.hand_value}</span>
+                                    ${betBadge}
+                                    <span class="round-counter">Round ${roundCounter[action.agent_id]}</span>
                                     ${resultBadge}
                                 </div>
                                 <span class="time">🕐 ${time}</span>
@@ -465,31 +509,34 @@
                     }
                 });
 
-                const winRateCtx = document.getElementById('winRateChart');
-                const winRates = agents.map(a => {
-                    const total = a.wins + a.losses;
-                    return total > 0 ? (a.wins / total * 100) : 0;
-                });
-
-                if (winRateChart) winRateChart.destroy();
-                winRateChart = new Chart(winRateCtx, {
-                    type: 'doughnut',
+                const balanceCtx = document.getElementById('balanceChart');
+                const top5Balance = agents.slice(0, 5);
+                
+                if (balanceChart) balanceChart.destroy();
+                balanceChart = new Chart(balanceCtx, {
+                    type: 'bar',
                     data: {
-                        labels: agents.map(a => a.name),
+                        labels: top5Balance.map(a => a.name),
                         datasets: [{
-                            data: winRates,
-                            backgroundColor: ['#4ade80', '#60a5fa', '#f87171', '#fbbf24', '#8b5cf6', '#ec4899'],
-                            borderColor: '#1a1a2e',
+                            label: 'Balance',
+                            data: top5Balance.map(a => a.balance),
+                            backgroundColor: '#fbbf24',
+                            borderColor: '#f59e0b',
                             borderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#888' }
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                ticks: { color: '#888' },
+                                grid: { color: 'rgba(74, 222, 128, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#888' },
+                                grid: { display: false }
                             }
                         }
                     }
@@ -517,6 +564,9 @@
                                 <div class="hand-value-display">Hand Value: ${simHandValue}</div>
                                 <div style="margin-top: 8px; font-size: 0.9em; color: #888;">
                                     Record: ${agent.wins}W - ${agent.losses}L
+                                </div>
+                                <div style="margin-top: 8px; font-size: 0.85em; color: #fbbf24; font-weight: bold;">
+                                    💰 Balance: ${agent.balance}
                                 </div>
                             </div>
                         `;
